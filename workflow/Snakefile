@@ -1,33 +1,20 @@
 configfile: "config/config.yaml"
 
-carbon_stocks = expand("results/carbon_stocks/{landscape}/{topography}.{landclass}.LandscapeCarbonStock.tif", landscape=config["landscapes"], topography=config["topographies"], landclass=config["landclasses"])
-greenhouse_gas_emissions = expand("results/greenhouse_gas_emissions/{landscape}/{topography}.{landclass}.LandscapeGreenhouseGasEmissions.tif", landscape=config["landscapes"], topography=config["topographies"], landclass=config["landclasses"])
+PERMUTATIONS = {
+    "landscape": config["landscapes"],
+    "topography": config["topographies"],
+    "landclass": config["landclasses"]
+}
+carbon_stocks = expand("results/carbon_stocks/{landscape}/{topography}.{landclass}.LandscapeCarbonStock.tif", **PERMUTATIONS)
+greenhouse_gas_emissions = expand("results/greenhouse_gas_emissions/{landscape}/{topography}.{landclass}.LandscapeGreenhouseGasEmissions.tif", **PERMUTATIONS)
+pollinator_overlap = expand("results/pollination/{landscape}/{topography}.{landclass}.LandscapePollinatorOverlap.tif", **PERMUTATIONS)
+
+include: "rules/pollination.smk"
+include: "rules/carbon.smk"
+include: "rules/ghg.smk"
 
 rule all:
     input:
         carbon_stocks,
-        greenhouse_gas_emissions
-
-rule carbon_stock:
-    input:
-        "../virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
-    output:
-        "results/carbon_stocks/{landscape}/{topography}.{landclass}.LandscapeCarbonStock.tif"
-    params:
-        datatype="UInt16"
-    container:
-        "osgeo/gdal:alpine-normal-latest"
-    shell:
-        'gdal_calc.py -A {input} --outfile={output} --calc="(A==0)*5 + (A==1)*10 + (A==2)*18 + (A==3)*30 + (A==4)*140 + (A==5)*200" --type={params.datatype} --overwrite --co TILED=YES'
-
-rule greenhouse_gas_emission:
-    input:
-        "../virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
-    output:
-        "results/greenhouse_gas_emissions/{landscape}/{topography}.{landclass}.LandscapeGreenhouseGasEmissions.tif"
-    params:
-        datatype="UInt16"
-    container:
-        "osgeo/gdal:alpine-normal-latest"
-    shell:
-        'gdal_calc.py -A {input} --outfile={output} --calc="(A==0)*1400 + (A==1)*8800 + (A==2)*1000 + (A==3)*2 + (A==4)*5 + (A==5)*0" --type={params.datatype} --overwrite --co TILED=YES'
+        greenhouse_gas_emissions,
+        pollinator_overlap
