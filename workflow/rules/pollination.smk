@@ -24,15 +24,15 @@ rule pollinator_quality:
     shell:
         'gdal_calc.py -A {params.landscape} --outfile={output} --calc="numpy.isin(A,[0,1,6])*0 + numpy.isin(A,[2,4,5])*5 + numpy.isin(A,[3])*10" --NoDataValue=0 --type={params.datatype} --overwrite --co TILED=YES'
 
-rule grassdata:
-    input: # Just pick any raster with the desired region extent
+rule grassdata_landclass:
+    input:
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
     output:
         directory("results/grass/data/region/{landscape}/{topography}/{landclass}")
     container:
         "docker://neteler/grassgis7:latest"
     params:
-        landscape="/virtual-landscapes/hills/landclass_t0_c5.tif",
+        landscape="/virtual-landscapes/hills/landclass_{topography}_{landclass}.tif",
     shell:
         "grass -c {params.landscape} -e {output}"
 
@@ -52,8 +52,8 @@ rule pollinator_quality_grow:
     shell: # Import to GRASS, "grow", export the distance raster and the value raster, and use them in gdal_calc classification
         '{params.grass} r.in.gdal -r input={input[1]} output={params.quality_layer} --overwrite && '
         '{params.grass} r.grow.distance -m input={params.quality_layer} distance={params.quality_layer}_distance value={params.quality_layer}_value metric={params.metric} --overwrite && '
-        '{params.grass} r.out.gdal -c -m input={params.quality_layer}_distance output=/{output[0]} type=Float64 format=GTiff createopt="TFW=YES,COMPRESS=DEFLATE" --overwrite && '
-        '{params.grass} r.out.gdal -c -m input={params.quality_layer}_value output=/{output[1]} type=Float64 -f format=GTiff createopt="TFW=YES,COMPRESS=DEFLATE" --overwrite'
+        '{params.grass} r.out.gdal -c -m input={params.quality_layer}_distance output={output[0]} type=Float64 format=GTiff createopt="TFW=YES,COMPRESS=DEFLATE" --overwrite && '
+        '{params.grass} r.out.gdal -c -m input={params.quality_layer}_value output={output[1]} type=Float64 -f format=GTiff createopt="TFW=YES,COMPRESS=DEFLATE" --overwrite'
 
 rule pollinator_quality_expand:
     input:
