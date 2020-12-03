@@ -1,0 +1,5 @@
+channels:
+  - conda-forge
+dependencies:
+  - rasterio=1.1.8
+  - rasterstats

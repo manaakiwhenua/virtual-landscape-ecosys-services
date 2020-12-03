@@ -10,6 +10,8 @@ Run a linting tool over the Snakefile:
 
 `snakemake --lint`
 
+The linter will complain about missing log files. I don't really know how best to manage logging when using Singularity containers; is it to mount a log directory into each? I've just ignored this for now.
+
 ---
 
 ## Singularity/Docker
@@ -17,13 +19,13 @@ Run a linting tool over the Snakefile:
 Run this instead:
 
 ```bash
-snakemake --use-singularity -p -j1 --singularity-args "-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes:/virtual-landscapes -B $PWD/results:/results" --singularity-prefix /home/users/lawr/.singularity
+snakemake --use-singularity -p -j1 --singularity-args "-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes:/virtual-landscapes -B $PWD/results:/results -B /cifs/Tlinc/Projects\ K-O/MCSL/static:/static" --singularity-prefix /home/users/$USER/.singularity --use-conda
 ```
 
 Ideally the second volume binding (`-B $PWD/results:/results`) would be `-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes/results:/results`, but for some reason Snakemake and/or Singularity are having trouble writing there, or something... the error is not clear, it seems to end up mounting the wrong thing. The whitespace in the path is not helpful!! Error:
 
 ```
-snakemake --use-singularity -p -j1 --singularity-args "-B /cifs/Tlinc/Projects\\ K-O/MCSL/virtual-landscapes:/virtual-landscapes -B /cifs/Tlinc/Projects\\ K-O/MCSL/workflow/results:/results" --singularity-prefix /home/users/lawr/.singularity
+snakemake --use-singularity -p -j1 --singularity-args "-B /cifs/Tlinc/Projects\\ K-O/MCSL/virtual-landscapes:/virtual-landscapes -B /cifs/Tlinc/Projects\\ K-O/MCSL/workflow/results:/results" --singularity-prefix /home/users/$USER/.singularity
 Building DAG of jobs...
 Using shell: /bin/bash
 Provided cores: 1 (use --cores to define parallelism)
