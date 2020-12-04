@@ -12,7 +12,7 @@ rule landscape_p_factor:
     shell:
         'gdal_calc.py -A {params.dem} --outfile={output} --calc="((A+{params.dem_offset})**2)*0.0012" --type={params.datatype} --overwrite --co TILED=YES'
 
-rule grassdata_dem:
+rule grassdata_dem_erosion:
     input:
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/dem_{topography}.tif"
     output:
@@ -20,7 +20,7 @@ rule grassdata_dem:
     container:
         "docker://neteler/grassgis7:latest"
     params:
-        dem="/virtual-landscapes/hills/dem_{topography}.tif",
+        dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
     shell:
         "grass -c {params.dem} -e {output}"
 
@@ -30,6 +30,8 @@ rule slope:
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/dem_{topography}.tif"
     output:
         "results/erosion/{landscape}/{topography}.Landscape_Z_Factor.tif"
+    container:
+        "docker://neteler/grassgis7:latest"
     params:
         dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
         dem_grass="{landscape}_{topography}_dem",
@@ -37,7 +39,7 @@ rule slope:
         z_factor="{landscape}_{topography}_z_factor",
         grass="grass results/grass/data/region/erosion/{landscape}/{topography}/PERMANENT --text --exec"
     shell:
-        '{params.grass} r.in.gdal -r input="{input[1]}" output={params.dem_grass} --overwrite &&'
+        '{params.grass} r.in.gdal -r input="{params.dem}" output={params.dem_grass} --overwrite &&'
         '{params.grass} r.slope.aspect -e elevation={params.dem_grass} slope={params.slope} format="degrees" precision="FCELL" --overwrite &&'
         '{params.grass} r.mapcalc expression="{params.z_factor} = 0.065 + ( 4.56 * ( {params.slope} / 100 ) ) + ( 65.41 * ({params.slope} / 100 ) ^ 2 )" --overwrite &&'
         '{params.grass} r.out.gdal -c -m input={params.z_factor} output={output} type=Float64 format=GTiff createopt="TFW=YES,COMPRESS=DEFLATE" --overwrite'
@@ -48,6 +50,8 @@ rule slope_length_factor:
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/dem_{topography}.tif"
     output:
         "results/erosion/{landscape}/{topography}.LandscapeSlopeLengthFactor.tif"
+    container:
+        "docker://neteler/grassgis7:latest"
     params:
         dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
         dem_grass="{landscape}_{topography}_dem",
@@ -58,7 +62,7 @@ rule slope_length_factor:
         pi="3.141592653589793",
         grass="grass results/grass/data/region/erosion/{landscape}/{topography}/PERMANENT --text --exec"
     shell:
-        '{params.grass} r.in.gdal -r input="{input[1]}" output={params.dem_grass} --overwrite &&'
+        '{params.grass} r.in.gdal -r input={params.dem} output={params.dem_grass} --overwrite &&'
         '{params.grass} r.flow elevation={params.dem_grass} flowaccumulation={params.flow_acc} --overwrite &&'
         '{params.grass} r.mapcalc expression="{params.slope_length} = sqrt({params.flow_acc} * 625 / {params.pi})" --overwrite &&'
         '{params.grass} r.mapcalc expression="{params.slope_length_bounded} = if({params.slope_length}>=350,350,{params.slope_length})" --overwrite &&'

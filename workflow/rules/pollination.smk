@@ -32,7 +32,7 @@ rule grassdata_landclass:
     container:
         "docker://neteler/grassgis7:latest"
     params:
-        landscape="/virtual-landscapes/hills/landclass_{topography}_{landclass}.tif",
+        landscape="/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif",
     shell:
         "grass -c {params.landscape} -e {output}"
 
