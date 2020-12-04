@@ -30,7 +30,7 @@ rule landscape_scenic:
         "results/grass/data/region/recreation/{landscape}/{topography}",
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/dem_{topography}.tif"
     output:
-        "results/recreation/{landscape}/{topography}.LandscapeScenicValueNormalised.tif"
+        temp("results/recreation/{landscape}/{topography}.LandscapeScenicValueNormalised.tif")
     params:
         dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
         dem_grass="{landscape}_{topography}_dem",
@@ -55,7 +55,7 @@ rule landscape_natural_value:
     input:
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
     output:
-        "results/recreation/{landscape}/{topography}.{landclass}.LandscapeNaturalValueNormalised.tif"
+        temp("results/recreation/{landscape}/{topography}.{landclass}.LandscapeNaturalValueNormalised.tif")
     params:
         datatype="Float64",
         landscape="/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif",
@@ -70,7 +70,7 @@ rule landscape_areal_proportion:
         "results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}",
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
     output:
-        "results/recreation/{landscape}/{topography}.{landclass}.Landscape_Landcover_Area_Proportion.tif"
+        temp("results/recreation/{landscape}/{topography}.{landclass}.Landscape_Landcover_Area_Proportion.tif")
     params:
         grass="grass results/grass/data/region/recreation//landclass/{landscape}/{topography}/{landclass}/PERMANENT --text --exec",
         landclass="/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif",
@@ -93,7 +93,7 @@ rule landscape_natural_value_patch_weighted:
         "results/recreation/{landscape}/{topography}.{landclass}.Landscape_Landcover_Area_Proportion.tif",
         "results/recreation/{landscape}/{topography}.{landclass}.LandscapeNaturalValueNormalised.tif"
     output:
-        "results/recreation/{landscape}/{topography}.{landclass}.Landscape_Natural_Value_Patch.tif"
+        temp("results/recreation/{landscape}/{topography}.{landclass}.Landscape_Natural_Value_Patch.tif")
     container:
         "docker://osgeo/gdal:ubuntu-small-latest"
     params:
@@ -105,7 +105,7 @@ rule rivers_buffer:
     input:
         "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/river_{topography}.tif"
     output:
-        "results/recreation/{landscape}/{topography}.{landclass}.LandscapeRiverExpand.tif"
+        temp("results/recreation/{landscape}/{topography}.{landclass}.LandscapeRiverExpand.tif")
     params:
         datatype="Byte",
         rivers="/virtual-landscapes/{landscape}/river_{topography}.tif",
