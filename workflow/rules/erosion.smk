@@ -1,16 +1,15 @@
 rule landscape_p_factor:
     input:
-        "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/dem_{topography}.tif"
+        "results/precipitation/{landscape}/{topography}.precipitation.tif"
     output:
         "results/erosion/{landscape}/{topography}.Landscape_P_Factor.tif"
     params:
-        dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
         dem_offset="800",
         datatype="Float64"
     container:
         "docker://osgeo/gdal:ubuntu-small-latest"
     shell:
-        'gdal_calc.py -A {params.dem} --outfile={output} --calc="((A+{params.dem_offset})**2)*0.0012" --type={params.datatype} --overwrite --co TILED=YES'
+        'gdal_calc.py -A {params.dem} --outfile={output} --calc="({input}**2)*0.0012" --type={params.datatype} --overwrite --co TILED=YES'
 
 rule grassdata_dem_erosion:
     input:
@@ -84,7 +83,7 @@ rule landscape_u_values:
 
 rule erosion:
     input:
-        "results/erosion/{landscape}/{topography}.Landscape_P_Factor.tif",
+        "results/precipitation/{landscape}/{topography}.Landscape_P_Factor.tif",
         "results/erosion/{landscape}/{topography}.Landscape_Z_Factor.tif",
         "results/erosion/{landscape}/{topography}.LandscapeSlopeLengthFactor.tif",
         "results/erosion/{landscape}/{topography}.{landclass}.Landscape_U_Values.tif"

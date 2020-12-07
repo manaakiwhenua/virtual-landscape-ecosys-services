@@ -19,6 +19,22 @@ include: "rules/carbon.smk"
 include: "rules/ghg.smk"
 include: "rules/erosion.smk"
 include: "rules/recreation.smk"
+include: "rules/ndr.smk"
+
+rule landscape_precipitation:
+    input:
+        "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/dem_{topography}.tif"
+    output:
+        "results/precipitation/{landscape}/{topography}.precipitation.tif"
+    params:
+        dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
+        dem_offset="800",
+        datatype="Float64"
+    container:
+        "docker://osgeo/gdal:ubuntu-small-latest"
+    shell:
+        'gdal_calc.py -A {params.dem} --outfile={output} --calc="A+{params.dem_offset}" --type={params.datatype} --overwrite --co TILED=YES'
+
 
 rule all:
     input:
