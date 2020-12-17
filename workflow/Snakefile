@@ -10,20 +10,15 @@ greenhouse_gas_emissions = expand("results/greenhouse_gas_emissions/{landscape}/
 pollinator_overlap = expand("results/pollination/{landscape}/{topography}.{landclass}.LandscapePollinatorOverlap.tif", **PERMUTATIONS)
 erosion = expand("results/erosion/{landscape}/{topography}.{landclass}.LandscapeErosion_t_km_yr.tif", **PERMUTATIONS)
 recreation = expand("results/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.tif", **PERMUTATIONS)
+ndr = expand("results/ndr/{landscape}/{topography}.{landclass}/n_export.tif", **PERMUTATIONS)
+ndr_watershed = expand("results/ndr/{landscape}/{topography}.{landclass}/watershed_results_ndr.shp", **PERMUTATIONS)
 
 erosion_stats = expand("results/erosion/{landscape}/{topography}.{landclass}.LandscapeErosion_t_km_yr.json", **PERMUTATIONS)
 recreation_stats = expand("results/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.json", **PERMUTATIONS)
 
-include: "rules/pollination.smk"
-include: "rules/carbon.smk"
-include: "rules/ghg.smk"
-include: "rules/erosion.smk"
-include: "rules/recreation.smk"
-include: "rules/ndr.smk"
-
 rule landscape_precipitation:
     input:
-        "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes/{landscape}/dem_{topography}.tif"
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/dem_{topography}.tif"
     output:
         "results/precipitation/{landscape}/{topography}.precipitation.tif"
     params:
@@ -32,9 +27,17 @@ rule landscape_precipitation:
         datatype="Float64"
     container:
         "docker://osgeo/gdal:ubuntu-small-latest"
+    log:
+        "logs/precipitation/{landscape}/{topography}.precipitation.log"
     shell:
-        'gdal_calc.py -A {params.dem} --outfile={output} --calc="A+{params.dem_offset}" --type={params.datatype} --overwrite --co TILED=YES'
+        'gdal_calc.py -A {params.dem} --outfile={output} --calc="A+{params.dem_offset}" --type={params.datatype} --overwrite --co TILED=YES > {log} 2>&1'
 
+include: "rules/pollination.smk"
+include: "rules/carbon.smk"
+include: "rules/ghg.smk"
+include: "rules/erosion.smk"
+include: "rules/recreation.smk"
+include: "rules/ndr.smk"
 
 rule all:
     input:
@@ -42,4 +45,5 @@ rule all:
         greenhouse_gas_emissions,
         pollinator_overlap,
         erosion,
-        recreation
+        recreation,
+        ndr, ndr_watershed

@@ -1,19 +1,21 @@
 topographies:
   - t0
   - t1
-  # - t2
-  # - t3
-  # - t4
+  - t2
+  - t3
+  - t4
 
 landclasses:
   - c5
   - c10
-  # - c50
-  # - c100
-  # - c500
-  # - c1000
+  - c50
+  - c100
+  - c500
+  - c1000
 
 landscapes:
-  # - hills
+  - hills
   - mountains
-  # - plains
+  - plains
+
+basepath: "/cifs/Tlinc/Projects K-O/MCSL"

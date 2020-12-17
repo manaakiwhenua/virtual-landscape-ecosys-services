@@ -19,7 +19,7 @@ The linter will complain about missing log files. I don't really know how best t
 Run this instead:
 
 ```bash
-snakemake --use-singularity -p -j1 --singularity-args "-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes:/virtual-landscapes -B $PWD/results:/results -B /cifs/Tlinc/Projects\ K-O/MCSL/static:/static" --singularity-prefix /home/users/$USER/.singularity --use-conda
+snakemake --use-singularity -p -j1 --singularity-args "-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes:/virtual-landscapes -B $PWD/results:/results -B $PWD/logs:/logs" --singularity-prefix /home/users/$USER/.singularity --use-conda
 ```
 
 Ideally the second volume binding (`-B $PWD/results:/results`) would be `-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes/results:/results`, but for some reason Snakemake and/or Singularity are having trouble writing there, or something... the error is not clear, it seems to end up mounting the wrong thing. The whitespace in the path is not helpful!! Error:
@@ -67,3 +67,9 @@ FATAL:   could not open image /home/users/lawr/Network/Tlinc/Projects K-O/MCSL/w
 ```
 
 In the meantime, the workflow can be run from a host machine, writing output to a local drive, and then moved later. This obviously has the user's host drive as an upper limit.
+
+---
+
+## Configuration
+
+There is a configuration file in `config/config.yaml`. This defines all of the possible values of `landclass`, `landscape` and `topography`, as well as the project `"basepath"` (assumed `/cifs/Tlinc/Projects K-O/MCSL`, **but this is only my local setup and is not universally applicable**).
