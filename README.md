@@ -10,8 +10,6 @@ Run a linting tool over the Snakefile:
 
 `snakemake --lint`
 
-The linter will complain about missing log files. I don't really know how best to manage logging when using Singularity containers; is it to mount a log directory into each? I've just ignored this for now.
-
 ---
 
 ## Singularity/Docker
