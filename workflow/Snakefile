@@ -3,26 +3,27 @@ configfile: "config/config.yaml"
 PERMUTATIONS = {
     "landscape": config["landscapes"],
     "topography": config["topographies"],
+    "proportion": config["proportions"],
     "landclass": config["landclasses"]
 }
-carbon_stocks = expand("results/carbon_stocks/{landscape}/{topography}.{landclass}.LandscapeCarbonStock.tif", **PERMUTATIONS)
-greenhouse_gas_emissions = expand("results/greenhouse_gas_emissions/{landscape}/{topography}.{landclass}.LandscapeGreenhouseGasEmissions.tif", **PERMUTATIONS)
-pollinator_overlap = expand("results/pollination/{landscape}/{topography}.{landclass}.LandscapePollinatorOverlap.tif", **PERMUTATIONS)
-erosion = expand("results/erosion/{landscape}/{topography}.{landclass}.LandscapeErosion_t_km_yr.tif", **PERMUTATIONS)
-recreation = expand("results/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.tif", **PERMUTATIONS)
-ndr = expand("results/ndr/{landscape}/{topography}.{landclass}/n_export.tif", **PERMUTATIONS)
-ndr_watershed = expand("results/ndr/{landscape}/{topography}.{landclass}/watershed_results_ndr.shp", **PERMUTATIONS)
+carbon_stocks = expand("results/carbon_stocks/{landscape}/{topography}.{landclass}.{proportion}.LandscapeCarbonStock.tif", **PERMUTATIONS)
+greenhouse_gas_emissions = expand("results/greenhouse_gas_emissions/{landscape}/{topography}.{landclass}.{proportion}.LandscapeGreenhouseGasEmissions.tif", **PERMUTATIONS)
+pollinator_overlap = expand("results/pollination/{landscape}/{topography}.{landclass}.{proportion}.LandscapePollinatorOverlap.tif", **PERMUTATIONS)
+erosion = expand("results/erosion/{landscape}/{topography}.{landclass}.{proportion}.LandscapeErosion_t_km_yr.tif", **PERMUTATIONS)
+recreation = expand("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.tif", **PERMUTATIONS)
+ndr = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/n_export.tif", **PERMUTATIONS)
+ndr_watershed = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/watershed_results_ndr.shp", **PERMUTATIONS)
 
-erosion_stats = expand("results/erosion/{landscape}/{topography}.{landclass}.LandscapeErosion_t_km_yr.json", **PERMUTATIONS)
-recreation_stats = expand("results/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.json", **PERMUTATIONS)
+erosion_stats = expand("results/erosion/{landscape}/{topography}.{landclass}.{proportion}.LandscapeErosion_t_km_yr.json", **PERMUTATIONS)
+recreation_stats = expand("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.json", **PERMUTATIONS)
 
 rule landscape_precipitation:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/dem_{topography}.tif"
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         "results/precipitation/{landscape}/{topography}.precipitation.tif"
     params:
-        dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
+        dem="/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif",
         dem_offset="800",
         datatype="Float64"
     container:

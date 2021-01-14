@@ -1,12 +1,12 @@
 rule grassdata_dem_recreation:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/dem_{topography}.tif"
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         directory("results/grass/data/region/recreation/{landscape}/{topography}")
     container:
         "docker://neteler/grassgis7:latest"
     params:
-        dem="/virtual-landscapes/{landscape}/dem_{topography}.tif"
+        dem="/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
     log:
         "logs/grass/data/region/recreation/{landscape}/{topography}.grass.log"
     shell:
@@ -14,15 +14,15 @@ rule grassdata_dem_recreation:
 
 rule grassdata_dem_recreation_landclass:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
-        directory("results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}")
+        directory("results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}")
     container:
         "docker://neteler/grassgis7:latest"
     params:
-        landclass="/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif",
+        landclass="/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
     log:
-        "logs/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}.grass.log"
+        "logs/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}.grass.log"
     shell:
         "grass -c {params.landclass} -e {output} > {log} 2>&1"
 
@@ -32,11 +32,11 @@ NEIGHBOURHOOD_SIZE = int((RADIUS*2)/CELL_SIZE)
 rule landscape_scenic:
     input:
         "results/grass/data/region/recreation/{landscape}/{topography}",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/dem_{topography}.tif"
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         temp("results/recreation/{landscape}/{topography}.LandscapeScenicValueNormalised.tif")
     params:
-        dem="/virtual-landscapes/{landscape}/dem_{topography}.tif",
+        dem="/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif",
         dem_grass="{landscape}_{topography}_dem",
         focal="{landscape}_{topography}_focal",
         tpi="{landscape}_{topography}_tpi",
@@ -60,35 +60,34 @@ rule landscape_scenic:
 
 rule landscape_natural_value:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
-        temp("results/recreation/{landscape}/{topography}.{landclass}.LandscapeNaturalValueNormalised.tif")
+        temp("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.LandscapeNaturalValueNormalised.tif")
     params:
         datatype="Float64",
-        landscape="/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif",
+        landscape="/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
     container:
         "docker://osgeo/gdal:ubuntu-small-latest"
     log:
-        "logs/recreation/{landscape}/{topography}.{landclass}.LandscapeNaturalValueNormalised.log"
+        "logs/recreation/{landscape}/{topography}.{landclass}.{proportion}.LandscapeNaturalValueNormalised.log"
     shell:
         'gdal_calc.py -A {params.landscape} --outfile={output} --calc="(A==0)*0 + (A==1)*0.2 + (A==2)*0.7 + (A==3)*0.6 + (A==4)*0.5 + (A==5)*1.0 + (A==6)*999" --NoDataValue=999 --type={params.datatype} --overwrite --co TILED=YES > {log} 2>&1'
 
 rule landscape_areal_proportion:
-    # calculate area of each "patch" in m2, then divide by 2,500,000,000, i.e. 50k*50k, the area of the region in m2
     input:
-        "results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif"
+        "results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}",
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
-        temp("results/recreation/{landscape}/{topography}.{landclass}.Landscape_Landcover_Area_Proportion.tif")
+        temp("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Landcover_Area_Proportion.tif")
     params:
-        grass="grass -f results/grass/data/region/recreation//landclass/{landscape}/{topography}/{landclass}/PERMANENT --text --exec",
-        landclass="/virtual-landscapes/{landscape}/landclass_{topography}_{landclass}.tif",
-        landclass_grass="{landscape}_{topography}_{landclass}_landclass",
-        total_area=2500000000.0
+        grass="grass -c -f results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}/PERMANENT --text --exec",
+        landclass="/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
+        landclass_grass="{landscape}_{topography}_{landclass}_{proportion}_landclass",
+        total_area=config['RESOLUTION']^2*config['HEIGHT']*config['WIDTH']
     container:
         "docker://neteler/grassgis7:latest"
     log:
-        "logs/recreation/{landscape}/{topography}.{landclass}.Landscape_Landcover_Area_Proportion.log"
+        "logs/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Landcover_Area_Proportion.log"
     shell:
         '({params.grass} r.in.gdal -r input={params.landclass} output={params.landclass_grass} --overwrite && '
         '{params.grass} r.clump -d input={params.landclass_grass} output={params.landclass_grass}_clump --overwrite && '
@@ -102,27 +101,27 @@ rule landscape_areal_proportion:
 
 rule landscape_natural_value_patch_weighted:
     input:
-        lc="results/recreation/{landscape}/{topography}.{landclass}.Landscape_Landcover_Area_Proportion.tif",
-        lv="results/recreation/{landscape}/{topography}.{landclass}.LandscapeNaturalValueNormalised.tif"
+        lc="results/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Landcover_Area_Proportion.tif",
+        lv="results/recreation/{landscape}/{topography}.{landclass}.{proportion}.LandscapeNaturalValueNormalised.tif"
     output:
-        temp("results/recreation/{landscape}/{topography}.{landclass}.Landscape_Natural_Value_Patch.tif")
+        temp("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Natural_Value_Patch.tif")
     container:
         "docker://osgeo/gdal:ubuntu-small-latest"
     params:
         datatype="Float64"
     log:
-        "logs/recreation/{landscape}/{topography}.{landclass}.Landscape_Natural_Value_Patch.log"
+        "logs/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Natural_Value_Patch.log"
     shell:
         'gdal_calc.py -A {input.lc} -B {input.lv} --outfile={output} --calc="A*B" --type={params.datatype} --overwrite --co TILED=YES > {log} 2>&1'
 
 rule rivers_buffer:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/river_{topography}.tif"
+        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-rivers_{topography}.tif"
     output:
         temp("results/recreation/{landscape}/{topography}.{landclass}.LandscapeRiverExpand.tif")
     params:
         datatype="Byte",
-        rivers="/virtual-landscapes/{landscape}/river_{topography}.tif",
+        rivers="/virtual-landscapes/{landscape}/{landscape}-rivers_{topography}.tif",
         distance=20,
         units="PIXEL"
     container:
@@ -138,30 +137,30 @@ rule recreation_value_additive:
     input:
         r="results/recreation/{landscape}/{topography}.{landclass}.LandscapeRiverExpand.tif",
         v="results/recreation/{landscape}/{topography}.LandscapeScenicValueNormalised.tif",
-        vp="results/recreation/{landscape}/{topography}.{landclass}.Landscape_Natural_Value_Patch.tif"
+        vp="results/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Natural_Value_Patch.tif"
     output:
-        "results/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.tif"
+        "results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.tif"
     params:
         datatype="Float64"
     container:
         "docker://osgeo/gdal:ubuntu-small-latest"
     log:
-        "logs/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.tif.log"
+        "logs/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.tif.log"
     shell:
         'gdal_calc.py -A {input.r} -B {input.v} -C {input.vp} --outfile={output} --calc="A*0.2 + B*0.2 + C" --type={params.datatype} --overwrite --co TILED=YES > {log} 2>&1'
 
 rule recreation_value_additive_stats:
     input:
         f"{config['basepath']}"+"/virtual-landscapes/static/VirtualDomain/VirtualDomain.geojson",
-        "results/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.tif"
+        "results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.tif"
     output:
-        "results/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.json"
+        "results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.json"
     conda:
         "../envs/rasterio.yml"
     params:
         stats='mean sum',
         all_touched=True
     log:
-        "logs/recreation/{landscape}/{topography}.{landclass}.RecreationValueAdditive.json.log"
+        "logs/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.json.log"
     script:
         "../scripts/rasterstats.py > {log} 2>&1"

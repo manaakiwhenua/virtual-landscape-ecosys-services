@@ -11,7 +11,13 @@ landclasses:
   - c50
   - c100
   - c500
-  - c1000
+  # - c1000
+
+proportions:
+  - p0
+  - p1
+  - p2
+  - p3
 
 landscapes:
   - hills
@@ -19,3 +25,9 @@ landscapes:
   - plains
 
 basepath: "/cifs/Tlinc/Projects K-O/MCSL"
+
+# height and width of a pixel, in metres
+RESOLUTION: 25
+# Height and width of the entire region, in pixels
+WIDTH: 1000
+HEIGHT: 1000
