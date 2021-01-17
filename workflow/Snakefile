@@ -14,8 +14,9 @@ recreation = expand("results/recreation/{landscape}/{topography}.{landclass}.{pr
 ndr = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/n_export.tif", **PERMUTATIONS)
 ndr_watershed = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/watershed_results_ndr.shp", **PERMUTATIONS)
 
-erosion_stats = expand("results/erosion/{landscape}/{topography}.{landclass}.{proportion}.LandscapeErosion_t_km_yr.json", **PERMUTATIONS)
-recreation_stats = expand("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.json", **PERMUTATIONS)
+ndr_intermediate_modified_load_n = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/intermediate_outputs/modified_load_n.tif", **PERMUTATIONS)
+
+landscapes = expand(f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif", **PERMUTATIONS)
 
 rule landscape_precipitation:
     input:
@@ -48,3 +49,35 @@ rule all:
         erosion,
         recreation,
         ndr, ndr_watershed
+
+rule summary:
+    input:
+        erosion,
+        recreation,
+        pollinator_overlap,
+        greenhouse_gas_emissions,
+        carbon_stocks,
+        ndr, ndr_watershed
+    output:
+        "results/summary/summary.xlsx"
+    conda:
+        "envs/rasterio.yml"
+    params:
+        iterator_sequence=["landscape", "topography", "landclass", "proportion"],
+        landscape=config["landscapes"],
+        topography=config["topographies"],
+        proportion=config["proportions"],
+        landclass=config["landclasses"],
+        resolution=config["RESOLUTION"],
+        erosion=erosion,
+        recreation=recreation,
+        pollinator_overlap=pollinator_overlap,
+        greenhouse_gas_emissions=greenhouse_gas_emissions,
+        carbon_stocks=carbon_stocks,
+        landscapes=landscapes,
+        ndr=ndr,
+        ndr_intermediate_modified_load_n=ndr_intermediate_modified_load_n
+    log:
+        "logs/summary/summary.log"
+    script:
+        "scripts/summary.py"

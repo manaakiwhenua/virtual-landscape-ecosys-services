@@ -148,19 +148,3 @@ rule recreation_value_additive:
         "logs/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.tif.log"
     shell:
         'gdal_calc.py -A {input.r} -B {input.v} -C {input.vp} --outfile={output} --calc="A*0.2 + B*0.2 + C" --type={params.datatype} --overwrite --co TILED=YES > {log} 2>&1'
-
-rule recreation_value_additive_stats:
-    input:
-        f"{config['basepath']}"+"/virtual-landscapes/static/VirtualDomain/VirtualDomain.geojson",
-        "results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.tif"
-    output:
-        "results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.json"
-    conda:
-        "../envs/rasterio.yml"
-    params:
-        stats='mean sum',
-        all_touched=True
-    log:
-        "logs/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.json.log"
-    script:
-        "../scripts/rasterstats.py > {log} 2>&1"

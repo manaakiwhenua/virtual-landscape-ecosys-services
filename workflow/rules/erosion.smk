@@ -109,19 +109,3 @@ rule erosion:
         "logs/erosion/{landscape}/{topography}.{landclass}.{proportion}.LandscapeErosion_t_km_yr.log"
     shell:
         'gdal_calc.py -A {input.p} -B {input.z} -C {input.slp} -D {input.u} --outfile={output} --calc="A * 0.2 * C * B * D" --overwrite --co TILED=YES > {log} 2>&1'
-
-rule erosion_stats:
-    input:
-        f"{config['basepath']}"+"/virtual-landscapes/static/VirtualDomain/VirtualDomain.geojson",
-        "results/erosion/{landscape}/{topography}.{landclass}.{proportion}.LandscapeErosion_t_km_yr.tif"
-    output:
-        "results/erosion/{landscape}/{topography}.{landclass}.{proportion}.LandscapeErosion_t_km_yr.json"
-    conda:
-        "../envs/rasterio.yml"
-    params:
-        stats='mean sum',
-        all_touched=True
-    log:
-        "logs/erosion/{landscape}/{topography}.{landclass}.{proportion}.LandscapeErosion_t_km_yr.log"
-    script:
-        "../scripts/rasterstats.py > {log} 2>&1"
