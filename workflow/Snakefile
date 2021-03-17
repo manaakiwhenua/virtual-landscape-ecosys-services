@@ -1,5 +1,6 @@
 configfile: "config/config.yaml"
 
+TOTAL_AREA = float(config['RESOLUTION']**2*config['HEIGHT']*config['WIDTH'])
 PERMUTATIONS = {
     "landscape": config["landscapes"],
     "topography": config["topographies"],
@@ -18,22 +19,7 @@ ndr_intermediate_modified_load_n = expand("results/ndr/{landscape}/{topography}.
 
 landscapes = expand(f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif", **PERMUTATIONS)
 
-rule landscape_precipitation:
-    input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
-    output:
-        "results/precipitation/{landscape}/{topography}.precipitation.tif"
-    params:
-        dem="/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif",
-        dem_offset="800",
-        datatype="Float64"
-    container:
-        "docker://osgeo/gdal:ubuntu-small-latest"
-    log:
-        "logs/precipitation/{landscape}/{topography}.precipitation.log"
-    shell:
-        'gdal_calc.py -A {params.dem} --outfile={output} --calc="A+{params.dem_offset}" --type={params.datatype} --overwrite --co TILED=YES > {log} 2>&1'
-
+include: "rules/landscape.smk"
 include: "rules/pollination.smk"
 include: "rules/carbon.smk"
 include: "rules/ghg.smk"

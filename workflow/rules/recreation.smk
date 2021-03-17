@@ -83,7 +83,7 @@ rule landscape_areal_proportion:
         grass="grass -c -f results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}/PERMANENT --text --exec",
         landclass="/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
         landclass_grass="{landscape}_{topography}_{landclass}_{proportion}_landclass",
-        total_area=config['RESOLUTION']^2*config['HEIGHT']*config['WIDTH']
+        total_area=TOTAL_AREA
     container:
         "docker://neteler/grassgis7:latest"
     log:
@@ -94,8 +94,8 @@ rule landscape_areal_proportion:
         '{params.grass} r.to.vect input={params.landclass_grass}_clump output={params.landclass_grass}_patch type=area --overwrite && '
         '{params.grass} v.db.addcolumn map={params.landclass_grass}_patch columns="Area DOUBLE PRECISION" && '
         '{params.grass} v.to.db map={params.landclass_grass}_patch option=area units=meters columns=Area --overwrite && '
-        '{params.grass} v.to.rast input={params.landclass_grass}_patch output={params.landclass_grass}_patch_r use=attr attribute_column=Area --overwrite && '
-        '{params.grass} r.mapcalc expression="{params.landclass_grass}_patch_r_proportion=({params.landclass_grass}_patch_r/{params.total_area})" --overwrite && '
+        '{params.grass} v.to.rast input={params.landclass_grass}_patch output={params.landclass_grass}_patch_r type=area use=attr attribute_column=Area --overwrite && '
+        "{params.grass} r.mapcalc expression='{params.landclass_grass}_patch_r_proportion=({params.landclass_grass}_patch_r/{params.total_area})' --overwrite && "
         '{params.grass} r.out.gdal -c -m input={params.landclass_grass}_patch_r_proportion output={output} type=Float64 format=GTiff createopt="COMPRESS=DEFLATE" --overwrite '
         ') > {log} 2>&1'
 
@@ -122,14 +122,14 @@ rule rivers_buffer:
     params:
         datatype="Byte",
         rivers="/virtual-landscapes/{landscape}/{landscape}-rivers_{topography}.tif",
-        distance=20,
-        units="PIXEL"
+        maxdist=500, # Units of SRS, i.e. metres
+        distunits="GEO"
     container:
         "docker://osgeo/gdal:ubuntu-small-latest"
     log:
         "logs/recreation/{landscape}/{topography}.{landclass}.LandscapeRiverExpand.log"
     shell:
-        '(gdal_proximity.py {params.rivers} {output} -ot {params.datatype} -distunits {params.units} -maxdist {params.distance} -fixed-buf-val 1 -nodata 0 -of GTIff && '
+        '(gdal_proximity.py {params.rivers} {output} -ot {params.datatype} -distunits {params.distunits} -maxdist {params.maxdist} -fixed-buf-val 1 -nodata 0 -of GTIff && '
         'gdal_calc.py -A {output} -B {params.rivers} --outfile={output} --calc="A+B" --type={params.datatype} --overwrite --co TILED=YES'
         ') > {log} 2>&1'
 
