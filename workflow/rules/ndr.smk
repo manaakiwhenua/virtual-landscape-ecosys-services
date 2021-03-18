@@ -4,12 +4,12 @@ rule nutrient_delivery_ratio_datastack:
         f"{config['basepath']}"+"/static/invest/Biophysical_Table.csv",
         f"{config['basepath']}"+"/{landscape}/{landscape}-dem_{topography}.tif",
         f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
-        f"{config['basepath']}"+"/static/VirtualDomain/VirtualDomain.v2.geojson",
+        f"{config['basepath']}"+"/static/VirtualDomain/VirtualDomain.v3.geojson",
     output:
         "results/ndr/{landscape}/{topography}.{landclass}.{proportion}.ndr.invs.json"
     params:
         workspace=lambda w, output: str(output).rstrip(".ndr.invs.json"),
-        watersheds="/virtual-landscapes/static/VirtualDomain/VirtualDomain.v2.shp",
+        watersheds="/virtual-landscapes/static/VirtualDomain/VirtualDomain.v3.shp",
         lulc="/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
         dem="/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif",
         biophysical_table="/virtual-landscapes/static/invest/Biophysical_Table.csv",
