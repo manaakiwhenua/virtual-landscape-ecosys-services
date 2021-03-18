@@ -17,7 +17,7 @@ ndr_watershed = expand("results/ndr/{landscape}/{topography}.{landclass}.{propor
 
 ndr_intermediate_modified_load_n = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/intermediate_outputs/modified_load_n.tif", **PERMUTATIONS)
 
-landscapes = expand(f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif", **PERMUTATIONS)
+landscapes = expand(f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif", **PERMUTATIONS)
 
 include: "rules/landscape.smk"
 include: "rules/pollination.smk"

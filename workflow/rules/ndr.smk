@@ -1,10 +1,10 @@
 rule nutrient_delivery_ratio_datastack:
     input:
         "results/precipitation/{landscape}/{topography}.precipitation.tif",
-        f"{config['basepath']}"+"/virtual-landscapes/static/invest/Biophysical_Table.csv",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
-        f"{config['basepath']}"+"/virtual-landscapes/static/VirtualDomain/VirtualDomain.v2.geojson",
+        f"{config['basepath']}"+"/static/invest/Biophysical_Table.csv",
+        f"{config['basepath']}"+"/{landscape}/{landscape}-dem_{topography}.tif",
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
+        f"{config['basepath']}"+"/static/VirtualDomain/VirtualDomain.v2.geojson",
     output:
         "results/ndr/{landscape}/{topography}.{landclass}.{proportion}.ndr.invs.json"
     params:

@@ -1,6 +1,6 @@
 rule carbon_stock:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         "results/carbon_stocks/{landscape}/{topography}.{landclass}.{proportion}.LandscapeCarbonStock.tif"
     params:

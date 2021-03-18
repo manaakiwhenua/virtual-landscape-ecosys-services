@@ -1,6 +1,6 @@
 rule grassdata_dem_recreation:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         directory("results/grass/data/region/recreation/{landscape}/{topography}")
     container:
@@ -14,7 +14,7 @@ rule grassdata_dem_recreation:
 
 rule grassdata_dem_recreation_landclass:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         directory("results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}")
     container:
@@ -32,7 +32,7 @@ NEIGHBOURHOOD_SIZE = int((RADIUS*2)/CELL_SIZE)
 rule landscape_scenic:
     input:
         "results/grass/data/region/recreation/{landscape}/{topography}",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         temp("results/recreation/{landscape}/{topography}.LandscapeScenicValueNormalised.tif")
     params:
@@ -60,7 +60,7 @@ rule landscape_scenic:
 
 rule landscape_natural_value:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         temp("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.LandscapeNaturalValueNormalised.tif")
     params:
@@ -76,7 +76,7 @@ rule landscape_natural_value:
 rule landscape_areal_proportion:
     input:
         "results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         temp("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Landcover_Area_Proportion.tif")
     params:
@@ -116,7 +116,7 @@ rule landscape_natural_value_patch_weighted:
 
 rule rivers_buffer:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-rivers_{topography}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-rivers_{topography}.tif"
     output:
         temp("results/recreation/{landscape}/{topography}.{landclass}.LandscapeRiverExpand.tif")
     params:

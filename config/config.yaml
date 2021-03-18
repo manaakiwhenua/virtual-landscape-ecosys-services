@@ -30,7 +30,7 @@ landscapes:
   - mountains
   - plains
 
-basepath: "/cifs/Tlinc/Projects K-O/MCSL"
+basepath: "/cifs/Tlinc/Projects K-O/MCSL/virtual-landscapes-25km"
 
 # height and width of a pixel, in metres
 RESOLUTION: 25

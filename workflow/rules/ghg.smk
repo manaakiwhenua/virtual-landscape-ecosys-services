@@ -1,6 +1,6 @@
 rule greenhouse_gas_emission:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         "results/greenhouse_gas_emissions/{landscape}/{topography}.{landclass}.{proportion}.LandscapeGreenhouseGasEmissions.tif"
     params:

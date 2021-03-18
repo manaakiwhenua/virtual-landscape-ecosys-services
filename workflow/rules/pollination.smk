@@ -1,6 +1,6 @@
 rule pollinator_requirement:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         temp("results/pollination/{landscape}/{topography}.{landclass}.{proportion}.LandscapePollinatorRequirement.tif")
     params:
@@ -15,7 +15,7 @@ rule pollinator_requirement:
 
 rule pollinator_quality:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         temp("results/pollination/{landscape}/{topography}.{landclass}.{proportion}.LandscapePollinatorQuality.tif")
     params:
@@ -30,7 +30,7 @@ rule pollinator_quality:
 
 rule grassdata_landclass:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         directory("results/grass/data/region/pollination/{landscape}/{topography}/{landclass}/{proportion}")
     container:

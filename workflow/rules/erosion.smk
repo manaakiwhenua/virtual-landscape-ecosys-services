@@ -15,7 +15,7 @@ rule landscape_p_factor:
 
 rule grassdata_dem_erosion:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         directory("results/grass/data/region/erosion/{landscape}/{topography}")
     container:
@@ -30,7 +30,7 @@ rule grassdata_dem_erosion:
 rule slope:
     input:
         "results/grass/data/region/erosion/{landscape}/{topography}",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         temp("results/erosion/{landscape}/{topography}.Landscape_Z_Factor.tif")
     container:
@@ -53,7 +53,7 @@ rule slope:
 rule slope_length_factor:
     input:
         "results/grass/data/region/erosion/{landscape}/{topography}",
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-dem_{topography}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-dem_{topography}.tif"
     output:
         temp("results/erosion/{landscape}/{topography}.LandscapeSlopeLengthFactor.tif")
     container:
@@ -80,7 +80,7 @@ rule slope_length_factor:
 
 rule landscape_u_values:
     input:
-        f"{config['basepath']}"+"/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
+        f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
         temp("results/erosion/{landscape}/{topography}.{landclass}.{proportion}.Landscape_U_Values.tif")
     params:
