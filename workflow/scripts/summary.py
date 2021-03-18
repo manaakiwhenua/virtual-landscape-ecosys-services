@@ -17,10 +17,12 @@ params_product = product(*map(
 df = pd.DataFrame(columns=iter_seq)
 
 landcover_categories = [
-    '% Crops/horticulture', '% Intensive grass', '% Extensive grass',
-    '% Shrubland', '% Exotic forest', '% Native forest', '% Bare ground / Others'
+    'Crops/horticulture', 'Intensive grass', 'Extensive grass',
+    'Shrubland', 'Exotic forest', 'Native forest', 'Bare ground / Others'
 ]
 landcover_categories_ids = range(0,len(landcover_categories))
+
+landscape_metrics_labels = ['enn_mn', 'shdi', 'contag']
 
 # TODO parallelise?
 for i, row_params in enumerate(params_product):
@@ -44,19 +46,22 @@ for i, row_params in enumerate(params_product):
         num_patches = 0
         patch_sizes = []
         for class_name, id in zip(landcover_categories, landcover_categories_ids):
+            per_patch_sizes = []
             # Determine percentage of total landscape occupied by class
-            data[class_name] = np.count_nonzero(band == id) / total_cells * 100
+            data[f'% {class_name}'] = np.count_nonzero(band == id) / total_cells * 100
             # Identify "patches": sub-regional areas of the same class value
             # Queen-case structure; use (2,1) for rook-case
             structure = ndimage.generate_binary_structure(2,2)
             # Label queen-case regions of landclass
             labels, num_labels = ndimage.label(np.where(band == id, 1, 0), structure=structure)
+            data[f'{class_name} patches'] = num_labels
             num_patches += num_labels
             for loc in ndimage.find_objects(labels): # Slices
                 # For each patch (accessed with slice), determine its size
-                patch_sizes.append(
-                    np.count_nonzero(labels[loc]) * snakemake.params['resolution']**2
-                )
+                patch_size = np.count_nonzero(labels[loc]) * snakemake.params['resolution']**2
+                patch_sizes.append(patch_size)
+                per_patch_sizes.append(patch_size)
+            data[f'{class_name} mean patch size'] = np.mean(per_patch_sizes)
         data['Total number of patches'] = num_patches
         data['Mean patch size'] = np.mean(patch_sizes)
 
@@ -129,6 +134,15 @@ for i, row_params in enumerate(params_product):
         band = ds.read(1, masked=True)
         data['Mean carbon stocks'] = band.mean()
         data['Landscape sum of carbon stocks'] = band.sum()/(10000/snakemake.params['resolution']**2)
+
+    # Landscape metrics
+    landscape_metrics_data = list(filter(
+        re_filter.search, snakemake.params['landscape_metrics']
+    ))[0]
+    ls_df = pd.read_csv(landscape_metrics_data)
+    for metric in landscape_metrics_labels:
+        print(ls_df[ls_df['metric'] == metric]['value'].iat[0])
+        data[metric] = ls_df[ls_df['metric'] == metric]['value'].iat[0]
 
     # Append row
     df = df.append(pd.Series(data=data, name=i), ignore_index=False)

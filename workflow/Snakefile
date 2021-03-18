@@ -14,6 +14,7 @@ erosion = expand("results/erosion/{landscape}/{topography}.{landclass}.{proporti
 recreation = expand("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.RecreationValueAdditive.tif", **PERMUTATIONS)
 ndr = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/n_export.tif", **PERMUTATIONS)
 ndr_watershed = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/watershed_results_ndr.shp", **PERMUTATIONS)
+landscape_metrics = expand("results/landscape/{landscape}/{topography}.{landclass}.{proportion}.metrics.csv", **PERMUTATIONS)
 
 ndr_intermediate_modified_load_n = expand("results/ndr/{landscape}/{topography}.{landclass}.{proportion}/intermediate_outputs/modified_load_n.tif", **PERMUTATIONS)
 
@@ -28,13 +29,7 @@ include: "rules/recreation.smk"
 include: "rules/ndr.smk"
 
 rule all:
-    input:
-        carbon_stocks,
-        greenhouse_gas_emissions,
-        pollinator_overlap,
-        erosion,
-        recreation,
-        ndr, ndr_watershed
+    input: "results/summary/summary.xlsx"
 
 rule summary:
     input:
@@ -43,7 +38,8 @@ rule summary:
         pollinator_overlap,
         greenhouse_gas_emissions,
         carbon_stocks,
-        ndr, ndr_watershed
+        ndr, ndr_watershed,
+        landscape_metrics
     output:
         "results/summary/summary.xlsx"
     conda:
@@ -62,7 +58,8 @@ rule summary:
         carbon_stocks=carbon_stocks,
         landscapes=landscapes,
         ndr=ndr,
-        ndr_intermediate_modified_load_n=ndr_intermediate_modified_load_n
+        ndr_intermediate_modified_load_n=ndr_intermediate_modified_load_n,
+        landscape_metrics=landscape_metrics
     log:
         "logs/summary/summary.log"
     script:

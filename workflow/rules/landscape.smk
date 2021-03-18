@@ -19,7 +19,7 @@ rule landscape_metrics:
     input:
         f"{config['basepath']}"+"/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     output:
-        "results/landscape/{landscape}/{topography}.{landclass}.{proportion}.metrics.csv"
+        "results/landscape/{topography}.{landclass}.{proportion}.metrics.csv"
     params:
         landscape="/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif"
     container:
