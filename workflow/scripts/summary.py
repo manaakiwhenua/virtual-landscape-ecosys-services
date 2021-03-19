@@ -141,7 +141,6 @@ for i, row_params in enumerate(params_product):
     ))[0]
     ls_df = pd.read_csv(landscape_metrics_data)
     for metric in landscape_metrics_labels:
-        print(ls_df[ls_df['metric'] == metric]['value'].iat[0])
         data[metric] = ls_df[ls_df['metric'] == metric]['value'].iat[0]
 
     # Append row
