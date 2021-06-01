@@ -6,7 +6,7 @@ This could be used for real landscapes, but at present would require some modifi
 
 Contact [Richard Law](lawr@landcareresearch.co.nz) for assistance with this code.
 
-![Snakemake logo]("docs/snakemake.png")
+![Snakemake logo](docs/snakemake.png)
 
 ## Snakemake
 
