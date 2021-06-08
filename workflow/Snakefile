@@ -33,7 +33,9 @@ rule all:
 
 rule clean:
     shell:
-        rm -rf "results/"
+        '''
+        rm -rf results/
+        '''
 
 rule summary:
     input:
