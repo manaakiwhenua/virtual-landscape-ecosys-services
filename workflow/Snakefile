@@ -28,11 +28,12 @@ include: "rules/erosion.smk"
 include: "rules/recreation.smk"
 include: "rules/ndr.smk"
 
-rule clean:
-    rm -rf "results/"
-
 rule all:
     input: "results/summary/summary.xlsx"
+
+rule clean:
+    shell:
+        rm -rf "results/"
 
 rule summary:
     input:
