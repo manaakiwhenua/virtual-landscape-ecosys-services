@@ -80,7 +80,7 @@ rule landscape_areal_proportion:
     output:
         temp("results/recreation/{landscape}/{topography}.{landclass}.{proportion}.Landscape_Landcover_Area_Proportion.tif")
     params:
-        grass="grass -c -f results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}/PERMANENT --text --exec",
+        grass="grass -f results/grass/data/region/recreation/landclass/{landscape}/{topography}/{landclass}/{proportion}/PERMANENT --text --exec",
         landclass="/virtual-landscapes/{landscape}/{landscape}-landclass_{topography}_{landclass}_{proportion}.tif",
         landclass_grass="{landscape}_{topography}_{landclass}_{proportion}_landclass",
         total_area=TOTAL_AREA
