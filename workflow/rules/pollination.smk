@@ -54,7 +54,7 @@ rule pollinator_quality_grow:
     params:
         quality_layer="{landscape}_{topography}_{landclass}_{proportion}_LandscapePollinatorQuality_grow",
         metric="euclidean",
-        grass="grass -c -f /results/grass/data/region/pollination/{landscape}/{topography}/{landclass}/{proportion}/PERMANENT --text --exec"
+        grass="grass -f /results/grass/data/region/pollination/{landscape}/{topography}/{landclass}/{proportion}/PERMANENT --text --exec"
     log:
         "logs/pollination/{landscape}/{topography}.{landclass}.{proportion}.LandscapePollinatorQuality_value.log"
     shell: # Import to GRASS, "grow", export the distance raster and the value raster, and use them in gdal_calc classification
