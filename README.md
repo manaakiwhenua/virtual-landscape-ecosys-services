@@ -20,33 +20,30 @@ Command line reference: https://snakemake.readthedocs.io/en/stable/executing/cli
 
 In general, to run the whole workflow, run this command from the top-level directory. `all` is a dummy target that sits at the bottom of the workflow, and will cause all (missing) intermediate and ultimate files to be generated or updated.
 
-`snakemake --jobs $(nproc) all`
-
-To visualise the workflow as a directed acyclic graph (DAG), i.e. an image that represents the flow of files and processes (this requires the `GraphViz` software):
-
-`snakemake --dag | dot -Tsvg > dag.svg`
-
-You can also run a linting tool over the Snakefile to check for potential problems while developing new components:
-
-`snakemake --lint`
-
-### Singularity & Conda
-
-Unless you just happen to have all the required software installed on your machine, you will want to run the worflow with Singularity images and [Conda](https://docs.conda.io/en/latest/) environments. This requires a slightly different, longer, run command:
+Unless you just happen to have all the required software installed on your machine, you will want to run the worflow with Singularity images and [Conda](https://docs.conda.io/en/latest/) environments.
 
 ```bash
 snakemake \
-	--use-singularity \
 	--jobs $(nproc) \
+	--snakefile ./workflow/Snakefile \
+	--use-singularity \
 	--singularity-args "-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes-50km:/virtual-landscapes -B $PWD/results:/results -B $PWD/logs:/logs" \
 	--singularity-prefix /home/users/$USER/.singularity \
 	--use-conda \
+	--conda-frontend conda \
+	--rerun-incomplete \
+	--keep-going \
 	all
 ```
 
-This mounts the directory of inputs landscapes (`/cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes-50km`) to the directory `/virtual-landscapes` inside the container. Because the former is probably different on your machine, you will need to change this to reflect your network drive mapping.
+**This is a highly intertwined workflow where multiple rules rely on the same input files. This can cause issues with concurrent file access, where jobs will fail because they are unable to read an input that does exist. This means that it is likely that you will need to run this command a few times until all outputs are generated, since there is currently no system of file locking that will cause Snakemake to avoid scheduling jobs to run at the same time when they depend on the same input file/s.** Alternatively, copy the input directory to a local directory and use that instead of the networked one.
 
-Ideally the second volume binding (`-B $PWD/results:/results`) would be (the host-machine-specific equivalent of) `-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes-50km/results:/results`, but I have had issues getting Snakemake and/or Singularity to write to that directory.
+Alternatively, use `--jobs 1` to avoid concurrent jobs (in exchange for a much longer processing time).
+
+The above command mounts the shared directory of inputs landscapes (`/cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes-50km`) to the directory `/virtual-landscapes` inside the container. Because the former is probably different on your machine, you will need to change this to reflect your network drive mapping. It refers to the "T drive" CIFS mount known as "T Lincoln".
+
+Ideally the second volume binding (`-B $PWD/results:/results`) would be (the host-machine-specific equivalent of) `-B /cifs/Tlinc/Projects\ K-O/MCSL/virtual-landscapes-50km/results:/results`, but I have had issues getting Snakemake and/or Singularity to write to that shared directory, so I get it to write locally instead.
+
 
 <details>
 	<summary>Details of this error</summary>
@@ -98,6 +95,20 @@ Ideally the second volume binding (`-B $PWD/results:/results`) would be (the hos
 To work around this, I have been writing outputs to a directory on my host machine, and then moving it later to the correct network drive for sharing and posterity.
 
 ---
+
+#### Other handy commands
+
+To visualise the workflow as a directed acyclic graph (DAG), i.e. an image that represents the flow of files and processes (this requires the `GraphViz` software):
+
+`snakemake --dag --snakefile ./workflow/Snakefile | dot -Tsvg > dag.svg`
+
+You can also run a linting tool over the Snakefile to check for potential problems while developing new components:
+
+`snakemake --lint --snakefile ./workflow/Snakefile`
+
+You can "clean" the output directory in order to re-run the analysis from a clean slate. This is particularly useful while developing new outputs and making changes.
+
+`snakemake --snakefile ./workflow/Snakefile -j1 clean`
 
 ## Configuration
 
