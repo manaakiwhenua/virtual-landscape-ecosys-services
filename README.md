@@ -1,5 +1,7 @@
 # Virtual Landscapes Ecosystem Services Workflow
 
+[![manaakiwhenua-standards](https://github.com/manaakiwhenua/virtual-landscape-ecosys-services/workflows/manaakiwhenua-standards/badge.svg)](https://github.com/manaakiwhenua/manaakiwhenua-standards)
+
 This is a workflow produced for PRJ1968. It takes "virtual landscapes" produced by Tom Etherington and determines ecosystem service indicators for them. Each landscape varies some condition of topography, fragmentation or similar metric. This workflow is used to produce a table of outputs for further statistical analysis that ascertains which input properties are influential for particular ecosystem services.
 
 This could be used for real landscapes, but at present would require some modification.
